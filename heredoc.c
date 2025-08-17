@@ -6,7 +6,7 @@
 /*   By: noakebli <noakebli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/06 21:56:46 by noakebli          #+#    #+#             */
-/*   Updated: 2025/08/13 18:30:28 by noakebli         ###   ########.fr       */
+/*   Updated: 2025/08/17 04:55:45 by noakebli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,6 @@
 
 void	process_heredoc_line(t_heredoc_ctx *ctx, int write_fd, char *line)
 {
-	char	*expanded_line;
-
 	if (!line)
 	{
 		if (isatty(STDIN_FILENO))
@@ -24,15 +22,18 @@ void	process_heredoc_line(t_heredoc_ctx *ctx, int write_fd, char *line)
 			printf("by end-of-file (wanted `%s')\n", ctx->delimiter);
 		}
 		close(write_fd);
-		cleanup_and_exit(ctx->gc, 130);
+		if (ctx->gc)
+			gc_destroy(ctx->gc);
+		exit(0);
 	}
 	if (!ft_strcmp(line, ctx->delimiter))
-		cleanup_and_exit(ctx->gc, 0);
-	if (ctx->expand)
 	{
-		expanded_line = expand_variables_heredoc(line, ctx->env, ctx->gc);
-		line = expanded_line;
+		if (ctx->gc)
+			gc_destroy(ctx->gc);
+		exit(0);
 	}
+	if (ctx->expand)
+		line = expand_variables_heredoc(line, ctx->env, ctx->gc);
 	write(write_fd, line, ft_strlen(line));
 	write(write_fd, "\n", 1);
 }

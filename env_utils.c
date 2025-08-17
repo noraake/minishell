@@ -6,7 +6,7 @@
 /*   By: noakebli <noakebli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/17 11:42:26 by noakebli          #+#    #+#             */
-/*   Updated: 2025/08/17 01:48:34 by noakebli         ###   ########.fr       */
+/*   Updated: 2025/08/17 03:20:35 by noakebli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,6 @@ static void	remove_from_table(char **table, char *key)
 		if (!ft_strncmp(table[i], key, len)
 			&& (table[i][len] == '=' || table[i][len] == '\0'))
 		{
-			free(table[i]);
 			j = i;
 			while (table[j + 1])
 			{

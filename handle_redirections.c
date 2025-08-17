@@ -6,7 +6,7 @@
 /*   By: noakebli <noakebli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 15:59:49 by noakebli          #+#    #+#             */
-/*   Updated: 2025/08/17 01:33:23 by noakebli         ###   ########.fr       */
+/*   Updated: 2025/08/17 03:12:28 by noakebli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ static int	handle_redir_error(int *last_fd, t_env *env, t_gc *gc,
 		return (env->last_status);
 	}
 	env->last_status = 1;
+	cleanup_and_exit(gc, 1);
 	return (1);
 }
 

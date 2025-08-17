@@ -6,7 +6,7 @@
 /*   By: noakebli <noakebli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 15:10:29 by noakebli          #+#    #+#             */
-/*   Updated: 2025/08/17 02:21:54 by noakebli         ###   ########.fr       */
+/*   Updated: 2025/08/17 04:59:24 by noakebli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,8 +82,6 @@ int	execute_builtin_with_redirection(t_cmd *cmd, t_env *env, t_gc *gc)
 
 	if (save_std_fds(&fds[0], &fds[1]))
 		return (1);
-	// if (isatty(STDIN_FILENO))
-		// ft_putstr_fd("exit\n", STDERR_FILENO);
 	status = handle_redir_and_return(cmd, env, gc, fds);
 	if (status != 0)
 		return (status);
