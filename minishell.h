@@ -6,7 +6,7 @@
 /*   By: noakebli <noakebli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/17 11:43:05 by noakebli          #+#    #+#             */
-/*   Updated: 2025/08/16 23:52:13 by noakebli         ###   ########.fr       */
+/*   Updated: 2025/08/19 20:42:05 by noakebli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,8 @@
 # define REDIR_OUT 1
 # define APPEND 2
 # define HEREDOC 3
-// # define REDIR_FD 4
+# define REDIR_FD 4
+# define HEREDOC_PROCESSED 5
 
 # include "Libft/libft.h"
 # include <errno.h>
@@ -88,6 +89,7 @@ typedef struct s_redir
 	bool				quoted;
 	bool				expand;
 	int					heredoc_fd;
+	bool				heredoc_processed;
 	int					target_fd;
 	struct s_redir		*next;
 }						t_redir;
@@ -98,6 +100,8 @@ typedef struct s_cmd
 	char				*cmd_path;
 	char				*infile;
 	char				*outfile;
+	bool				was_empty_unquoted;
+	bool				was_empty_quoted;
 	int					append;
 	struct s_cmd		*next;
 	t_redir				*redirections;
@@ -132,12 +136,6 @@ typedef struct s_pipe_split_ctx
 	t_gc				*gc;
 }						t_pipe_split_ctx;
 
-// typedef struct s_wait_data
-// {
-// 	int					last_status;
-// 	int					printed_sigint;
-// }						t_wait_data;
-
 typedef struct s_redir_ctx
 {
 	char				**args;
@@ -150,9 +148,9 @@ typedef struct s_redir_ctx
 typedef struct s_expander_ctx
 {
 	char				*str;
-	int					i;
+	size_t				i;
 	char				*result;
-	int					j;
+	size_t				j;
 	t_env				*env;
 }						t_expander_ctx;
 
@@ -217,7 +215,8 @@ char					**split_path(t_gc *gc, char *path_str);
 void					execute_pipeline(t_cmd *cmds, t_env *env, t_gc *gc);
 char					*ft_strndup_gc(const char *s, size_t n, t_gc *gc);
 int						is_builtin(char *cmd);
-int						exec_builtin(t_cmd *cmd, t_env *env, t_gc *gc);
+int						exec_builtin(t_cmd *cmd, t_env *env, t_gc *gc,
+							bool in_child);
 int						handle_redirections(t_cmd *cmd, t_gc *gc);
 int						handle_heredoc(char *raw_delimiter, bool expand,
 							t_env *env, t_gc *gc);
@@ -247,7 +246,6 @@ int						handle_input_redir(char *file);
 int						handle_output_redir(char *file);
 int						handle_redirections_new(t_cmd *cmd, t_env *env,
 							t_gc *gc);
-// void					exec_child(t_exec_params *params);
 void					exec_with_pipes(t_cmd *cmds, t_env *env, t_gc *gc);
 int						process_input(char *line, t_env *env);
 int						execute_builtin_with_redirection(t_cmd *cmd, t_env *env,
@@ -255,8 +253,8 @@ int						execute_builtin_with_redirection(t_cmd *cmd, t_env *env,
 void					execute_single_cmd(t_cmd *cmds, t_env *env, t_gc *gc);
 int						builtin_cd(char **args, t_env *env, t_gc *gc);
 int						builtin_echo(char **args);
-int						builtin_pwd(void);
-int						builtin_exit(char **args, t_gc *gc);
+int						builtin_pwd(t_env *env);
+int						builtin_exit(char **args, t_gc *gc, bool in_child);
 int						builtin_export(char **args, t_env *env, t_gc *gc);
 int						builtin_unset(char **args, t_env *env);
 int						builtin_env(t_env *env);
@@ -353,5 +351,7 @@ char					*expand_variables_heredoc(char *str, t_env *env,
 void					exec_with_checks_exit(char *path, t_cmd *cmd,
 							t_env *env);
 char					*ft_strcpy(char *dest, const char *src);
+int						builtin_dot(char **args, t_env *env, t_gc *gc);
+int						preprocess_heredocs(t_cmd *cmds, t_env *env, t_gc *gc);
 
 #endif
