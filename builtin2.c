@@ -45,7 +45,8 @@ int	builtin_env(t_env *env)
 	i = 0;
 	while (env->env && env->env[i])
 	{
-		printf("%s\n", env->env[i]);
+		if (ft_strchr(env->env[i], '='))
+			printf("%s\n", env->env[i]);
 		i++;
 	}
 	return (0);

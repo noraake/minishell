@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec_builtin.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: noakebli <noakebli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ochachi <ochachi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 15:10:29 by noakebli          #+#    #+#             */
-/*   Updated: 2025/08/17 04:59:24 by noakebli         ###   ########.fr       */
+/*   Updated: 2025/08/18 14:15:27 by ochachi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ int	execute_builtin_with_redirection(t_cmd *cmd, t_env *env, t_gc *gc)
 	status = handle_redir_and_return(cmd, env, gc, fds);
 	if (status != 0)
 		return (status);
-	ret = exec_builtin(cmd, env, gc);
+	ret = exec_builtin(cmd, env, gc, false);
 	restore_std_fds(fds[0], fds[1]);
 	return (ret);
 }

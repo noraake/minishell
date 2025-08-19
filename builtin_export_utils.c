@@ -61,7 +61,7 @@ int	handle_export_with_value(char *name, char *value, t_env *env, t_gc *gc)
 	if (!assignment)
 		return (1);
 	add_or_update_env_var(env, assignment, gc);
-	free(assignment);
+	free(assignment);	
 	return (0);
 }
 

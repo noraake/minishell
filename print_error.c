@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   print_error.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: noakebli <noakebli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ochachi <ochachi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/07 00:01:22 by noakebli          #+#    #+#             */
-/*   Updated: 2025/08/11 10:33:01 by noakebli         ###   ########.fr       */
+/*   Updated: 2025/08/19 13:52:27 by ochachi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,10 +68,21 @@ int	lid_llong(const char *str)
 
 void	print_cmd_not_found(char *cmd)
 {
-	ft_putstr_fd("minishell: ", 2);
-	ft_putstr_fd(cmd, 2);
+	char	*msg;
+	char	*tmp;
+
 	if (ft_strchr(cmd, '/'))
-		ft_putstr_fd(": No such file or directory\n", 2);
+	{
+		tmp = ft_strjoin("minishell: ", cmd);
+		msg = ft_strjoin(tmp, ": No such file or directory\n");
+		free(tmp);
+	}
 	else
-		ft_putstr_fd(": command not found\n", 2);
+	{
+		tmp = ft_strjoin("minishell: ", cmd);
+		msg = ft_strjoin(tmp, ": command not found\n");
+		free(tmp);
+	}
+	write(2, msg, ft_strlen(msg));
+	free(msg);
 }

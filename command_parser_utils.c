@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   command_parser_utils.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: noakebli <noakebli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ochachi <ochachi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/06 04:32:18 by noakebli          #+#    #+#             */
-/*   Updated: 2025/08/15 23:04:21 by noakebli         ###   ########.fr       */
+/*   Updated: 2025/08/19 10:00:08 by ochachi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,30 +28,34 @@ static int	process_arg(char **args, bool *was_quoted, int i, t_context *ctx)
 	}
 	if (!final_or_expanded)
 		return (0);
-	args[i] = final_or_expanded;
+	if (!*final_or_expanded && !was_quoted[i])
+		args[i] = NULL;
+	else
+		args[i] = final_or_expanded;
 	return (1);
 }
 
 static void	compact_args_array(char **args, bool *was_quoted)
 {
-	int	i;
-	int	j;
+	int	read;
+	int	write;
 
-	i = 0;
-	while (args[i] && (!args[i] || !args[i][0]))
-		i++;
-	if (i > 0 && args[i])
+	read = 0;
+	write = 0;
+	while (args[read])
 	{
-		j = 0;
-		while (args[i])
+		if (args[read] != NULL)
 		{
-			args[j] = args[i];
-			was_quoted[j] = was_quoted[i];
-			i++;
-			j++;
+			if (read != write)
+			{
+				args[write] = args[read];
+				was_quoted[write] = was_quoted[read];
+			}
+			write++;
 		}
-		args[j] = NULL;
+		read++;
 	}
+	args[write] = NULL;
 }
 
 int	expand_and_clean_args(char **args, t_context *ctx, bool *was_quoted)

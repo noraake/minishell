@@ -6,23 +6,11 @@
 /*   By: noakebli <noakebli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/17 11:42:30 by noakebli          #+#    #+#             */
-/*   Updated: 2025/08/05 15:49:19 by noakebli         ###   ########.fr       */
+/*   Updated: 2025/08/19 21:29:56 by noakebli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-char	*build_full_path(char *dir, char *cmd, t_gc *gc)
-{
-	char	*tmp;
-	char	*full_path;
-
-	tmp = ft_strjoin_gc(dir, "/", gc);
-	if (!tmp)
-		return (NULL);
-	full_path = ft_strjoin_gc(tmp, cmd, gc);
-	return (full_path);
-}
 
 static char	*handle_absolute_or_relative(char *cmd, t_gc *gc)
 {
@@ -33,13 +21,37 @@ static char	*handle_absolute_or_relative(char *cmd, t_gc *gc)
 	return (NULL);
 }
 
-char	*find_command_path(char *cmd, t_env *env, t_gc *gc)
+static char	*search_in_paths(char **paths, char *cmd, t_gc *gc)
 {
 	int			i;
-	char		*path_env;
-	char		**paths;
 	char		*full_path;
 	struct stat	st;
+	char		*found_file;
+
+	i = 0;
+	found_file = NULL;
+	while (paths[i])
+	{
+		full_path = build_full_path(paths[i], cmd, gc);
+		if (full_path && access(full_path, F_OK) == 0)
+		{
+			if (stat(full_path, &st) == 0 && S_ISREG(st.st_mode))
+			{
+				if (!found_file)
+					found_file = full_path;
+				if (access(full_path, X_OK) == 0)
+					return (full_path);
+			}
+		}
+		i++;
+	}
+	return (found_file);
+}
+
+char	*find_command_path(char *cmd, t_env *env, t_gc *gc)
+{
+	char	*path_env;
+	char	**paths;
 
 	if (!cmd || !*cmd)
 		return (NULL);
@@ -51,15 +63,7 @@ char	*find_command_path(char *cmd, t_env *env, t_gc *gc)
 	paths = split_path(gc, path_env);
 	if (!paths)
 		return (NULL);
-	i = 0;
-	while (paths[i])
-	{
-		full_path = build_full_path(paths[i], cmd, gc);
-		if (full_path && stat(full_path, &st) == 0)
-			return (full_path);
-		i++;
-	}
-	return (NULL);
+	return (search_in_paths(paths, cmd, gc));
 }
 
 int	handle_append_redir(char *file)

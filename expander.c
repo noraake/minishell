@@ -6,7 +6,7 @@
 /*   By: noakebli <noakebli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/17 11:42:41 by noakebli          #+#    #+#             */
-/*   Updated: 2025/08/12 21:03:04 by noakebli         ###   ########.fr       */
+/*   Updated: 2025/08/18 17:44:06 by noakebli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,9 +36,11 @@ void	process_char_in_expand_no_quotes(t_expander_ctx *ctx)
 {
 	bool	in_single;
 	bool	in_double;
+	size_t	allocated_size;
 
 	in_single = false;
 	in_double = false;
+	allocated_size = calculate_expanded_size(ctx->str, ctx->env);
 	while (ctx->str[ctx->i])
 	{
 		if (update_quote_state(ctx->str[ctx->i], &in_single, &in_double))
@@ -46,31 +48,38 @@ void	process_char_in_expand_no_quotes(t_expander_ctx *ctx)
 		else if (ctx->str[ctx->i] == '$' && !in_single)
 			handle_variable(ctx);
 		else
-			ctx->result[(ctx->j)++] = ctx->str[(ctx->i)++];
+		{
+			if (ctx->j >= allocated_size - 1)
+				break ;
+			ctx->result[ctx->j++] = ctx->str[ctx->i++];
+		}
 	}
+	ctx->result[ctx->j] = '\0';
 }
 
 char	*expand_variables(char *str, t_env *env, t_gc *gc)
 {
 	char			*result;
 	t_expander_ctx	ctx;
+	size_t			size;
 
 	if (!str)
 		return (NULL);
 	if (!*str)
 		return (gc_strdup(gc, ""));
-	result = gc_malloc(gc, calculate_expanded_size(str, env));
+	size = calculate_expanded_size(str, env);
+	if (size < ft_strlen(str) + 256)
+		size = ft_strlen(str) + 256;
+	result = gc_malloc(gc, size);
 	if (!result)
 		return (NULL);
 	ctx.str = str;
 	ctx.i = 0;
-	ctx.result = result;
 	ctx.j = 0;
+	ctx.result = result;
 	ctx.env = env;
 	process_char_in_expand_no_quotes(&ctx);
 	ctx.result[ctx.j] = '\0';
-	if (ctx.j == 0)
-		return (gc_strdup(gc, ""));
 	return (ctx.result);
 }
 

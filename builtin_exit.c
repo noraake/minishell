@@ -6,7 +6,7 @@
 /*   By: noakebli <noakebli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 14:27:57 by noakebli          #+#    #+#             */
-/*   Updated: 2025/08/12 21:56:16 by noakebli         ###   ########.fr       */
+/*   Updated: 2025/08/18 17:45:39 by noakebli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,22 +35,26 @@ static int	check_exit_args(char **args, int argc, t_gc *gc, int *exit_code)
 	return (0);
 }
 
-int	builtin_exit(char **args, t_gc *gc)
+int	builtin_exit(char **args, t_gc *gc, bool in_child)
 {
-	int	argc;
-	int	exit_code;
+	int		argc;
+	int		exit_code;
+	t_env	*env;
 
 	argc = 0;
 	exit_code = 0;
+	env = get_env_for_signals(NULL);
 	while (args[argc])
 		argc++;
-	if (isatty(STDOUT_FILENO))
+	if (!in_child)
 		printf("exit\n");
 	if (argc >= 2)
 	{
 		if (check_exit_args(args, argc, gc, &exit_code))
 			return (1);
 	}
+	else
+		exit_code = env->last_status;
 	gc_free_all(gc);
 	free(gc);
 	exit(exit_code);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec_with_pipes.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: noakebli <noakebli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ochachi <ochachi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 16:15:07 by noakebli          #+#    #+#             */
-/*   Updated: 2025/08/16 16:39:59 by noakebli         ###   ########.fr       */
+/*   Updated: 2025/08/19 12:31:46 by ochachi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void	handle_command_execution(t_pipe_context *ctx)
 	}
 	if (is_builtin(ctx->current->args[0]))
 	{
-		status = exec_builtin(ctx->current, ctx->env, ctx->gc);
+		status = exec_builtin(ctx->current, ctx->env, ctx->gc, true);
 		cleanup_and_exit(ctx->gc, status);
 	}
 	if (strchr(ctx->current->args[0], '/'))
@@ -68,7 +68,6 @@ static void	wait_all_pipes(pid_t *pids, int count, t_env *env)
 	int			status;
 	int			last_status;
 	static int	printed_sigint = 0;
-	pid_t		shell_pgid;
 
 	i = -1;
 	last_status = 0;
@@ -82,12 +81,6 @@ static void	wait_all_pipes(pid_t *pids, int count, t_env *env)
 		if (i == count - 1)
 			last_status = status;
 	}
-	if (isatty(STDIN_FILENO))
-	{
-		shell_pgid = getpid();
-		if (ioctl(STDIN_FILENO, TIOCSPGRP, &shell_pgid) == -1)
-			perror("ioctl TIOCSPGRP");
-	}
 	update_status(last_status, env);
 }
 
@@ -98,6 +91,8 @@ void	exec_with_pipes(t_cmd *cmds, t_env *env, t_gc *gc)
 
 	count = count_cmds(cmds);
 	if (count == 0)
+		return ;
+	if (preprocess_heredocs(cmds, env, gc) < 0)
 		return ;
 	signal(SIGINT, SIG_IGN);
 	signal(SIGQUIT, SIG_IGN);

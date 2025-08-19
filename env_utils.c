@@ -82,7 +82,7 @@ int	add_or_update_env_var(t_env *env, char *var, t_gc *gc)
 		return (1);
 	while (env->env && env->env[i])
 	{
-		if (!ft_strncmp(env->env[i], key, len) && env->env[i][len] == '=')
+		if (!ft_strncmp(env->env[i], key, len) /*&& env->env[i][len] == '='*/)
 		{
 			env->env[i] = gc_strdup(gc, var);
 			return (env->env[i] == NULL);

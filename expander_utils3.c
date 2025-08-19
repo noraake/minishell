@@ -6,23 +6,11 @@
 /*   By: noakebli <noakebli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/07 15:36:49 by noakebli          #+#    #+#             */
-/*   Updated: 2025/08/07 15:53:45 by noakebli         ###   ########.fr       */
+/*   Updated: 2025/08/18 17:11:46 by noakebli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-t_redir	*handle_fd_redirection(char **args, int *i, t_gc *gc, int *error)
-{
-	t_redir	*new;
-
-	new = create_redirection(args[*i], "", false, gc);
-	if (!new)
-		*error = 1;
-	else
-		(*i)++;
-	return (new);
-}
 
 static int	handle_dollar_and_advance(char *str, int *i, bool in_single,
 		t_env *env)

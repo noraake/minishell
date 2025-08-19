@@ -6,7 +6,7 @@
 /*   By: noakebli <noakebli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 16:15:23 by noakebli          #+#    #+#             */
-/*   Updated: 2025/08/17 00:50:09 by noakebli         ###   ########.fr       */
+/*   Updated: 2025/08/19 21:51:35 by noakebli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,19 +91,18 @@ void	execute_single_cmd(t_cmd *cmds, t_env *env, t_gc *gc)
 {
 	if (!cmds)
 		return ;
-	if (!cmds->args || !cmds->args[0] || !*(cmds->args[0]))
+	if (cmds->was_empty_unquoted || !cmds->args || !cmds->args[0]
+		|| !*(cmds->args[0]))
 	{
-		if (!cmds->args || !cmds->args[0] || !*(cmds->args[0]))
+		if (cmds->redirections)
+			handle_redirection_only(cmds, env, gc);
+		else if (!cmds->was_empty_unquoted && cmds->args
+			&& *(cmds->args[0]) == '\0')
 		{
-			if (cmds->redirections)
-				handle_redirection_only(cmds, env, gc);
-			else
-			{
-				printf("minishell: \"\": command not found\n");
-				env->last_status = 127;
-			}
-			return ;
+			printf("minishell: \"\": command not found\n");
+			env->last_status = 127;
 		}
+		return ;
 	}
 	handle_exec(cmds, env, gc);
 }

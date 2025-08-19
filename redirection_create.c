@@ -2,9 +2,12 @@
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   redirection_create.c                               :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: noakebli <noakebli@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
+/*                                                    +:+ +:+
+	+:+     */
+/*   By: noakebli <noakebli@student.42.fr>          +#+  +:+
+	+#+        */
+/*                                                +#+#+#+#+#+
+	+#+           */
 /*   Created: 2025/08/06 21:54:56 by noakebli          #+#    #+#             */
 /*   Updated: 2025/08/06 21:54:56 by noakebli         ###   ########.fr       */
 /*                                                                            */
@@ -40,5 +43,8 @@ t_redir	*create_redirection(char *op, char *file, bool quoted, t_gc *gc)
 	set_redir_type(redir, op);
 	redir->quoted = quoted;
 	redir->next = NULL;
+	redir->heredoc_fd = -1;
+	redir->heredoc_processed = false;
+	redir->target_fd = -1;
 	return (redir);
 }

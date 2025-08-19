@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   expader_utils.c                                    :+:      :+:    :+:   */
+/*   expander_utils.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: noakebli <noakebli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/07 15:09:59 by noakebli          #+#    #+#             */
-/*   Updated: 2025/08/07 15:10:40 by noakebli         ###   ########.fr       */
+/*   Updated: 2025/08/18 17:45:53 by noakebli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	handle_status_var(char *result, int *j, t_env *env)
+void	handle_status_var(char *result, size_t *j, t_env *env)
 {
 	char	*status;
 	int		m;
@@ -24,17 +24,19 @@ void	handle_status_var(char *result, int *j, t_env *env)
 	free(status);
 }
 
-void	process_var_name(char *str, int *i, char *var_name)
+void	process_var_name(char *str, size_t *i, char *var_name)
 {
-	int	k;
+	int	j;
 
-	k = 0;
+	j = 0;
+	if (ft_isalpha(str[*i]) || str[*i] == '_' || ft_isdigit(str[*i]))
+		var_name[j++] = str[(*i)++];
 	while (str[*i] && (ft_isalnum(str[*i]) || str[*i] == '_'))
-		var_name[k++] = str[(*i)++];
-	var_name[k] = '\0';
+		var_name[j++] = str[(*i)++];
+	var_name[j] = '\0';
 }
 
-void	append_var_value(char *result, int *j, char *value)
+void	append_var_value(char *result, size_t *j, char *value)
 {
 	int	m;
 
@@ -55,7 +57,8 @@ void	handle_variable(t_expander_ctx *ctx)
 		ctx->i++;
 		return ;
 	}
-	if (!ft_isalpha(ctx->str[ctx->i]) && ctx->str[ctx->i] != '_')
+	if (!ft_isalpha(ctx->str[ctx->i]) && ctx->str[ctx->i] != '_'
+		&& !ft_isdigit(ctx->str[ctx->i]))
 	{
 		ctx->result[(ctx->j)++] = '$';
 		return ;

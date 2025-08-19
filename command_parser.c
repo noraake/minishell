@@ -6,7 +6,7 @@
 /*   By: ochachi <ochachi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/17 11:42:18 by noakebli          #+#    #+#             */
-/*   Updated: 2025/08/08 03:21:36 by ochachi          ###   ########.fr       */
+/*   Updated: 2025/08/19 10:07:08 by ochachi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,20 +51,38 @@ static char	**get_args_and_alloc_was_quoted(const char *command_str, t_gc *gc,
 	return (args);
 }
 
-t_cmd	*init_cmd_and_parse_args(const char *command_str, t_env *env, t_gc *gc,
-			bool **was_quoted_out)
+static	t_cmd	*create_and_setup_cmd(char **args,
+					bool **was_quoted_out, t_gc *gc)
 {
-	t_cmd		*cmd;
-	char		**args;
-	t_context	ctx;
+	t_cmd	*cmd;
 
-	if (!command_str)
-		return (NULL);
 	cmd = gc_malloc(gc, sizeof(t_cmd));
 	if (!cmd)
 		return (NULL);
 	cmd->next = NULL;
 	cmd->redirections = NULL;
+	if (!args[0])
+	{
+		cmd->args = args;
+		cmd->was_empty_unquoted = true;
+		return (cmd);
+	}
+	if (!*(args[0]) && (*was_quoted_out)[0])
+	{
+		cmd->was_empty_quoted = true;
+	}
+	cmd->args = args;
+	return (cmd);
+}
+
+t_cmd	*init_cmd_and_parse_args(const char *command_str, t_env *env, t_gc *gc,
+			bool **was_quoted_out)
+{
+	char		**args;
+	t_context	ctx;
+
+	if (!command_str)
+		return (NULL);
 	args = get_args_and_alloc_was_quoted(command_str, gc, was_quoted_out);
 	if (!args)
 		return (NULL);
@@ -72,8 +90,7 @@ t_cmd	*init_cmd_and_parse_args(const char *command_str, t_env *env, t_gc *gc,
 	ctx.gc = gc;
 	if (!expand_and_clean_args(args, &ctx, *was_quoted_out))
 		return (NULL);
-	cmd->args = args;
-	return (cmd);
+	return (create_and_setup_cmd(args, was_quoted_out, gc));
 }
 
 t_cmd	*parse_all_commands_gc(char **command_strings, t_env *env, t_gc *gc)
